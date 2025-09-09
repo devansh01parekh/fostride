@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Dustbin Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-recycle"></i> SmartBin</h2>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item active">
+                    <a href="#overview" class="nav-link">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Overview</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#bin-maps" class="nav-link">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>Bin Maps</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#segregation" class="nav-link">
+                        <i class="fas fa-chart-pie"></i>
+                        <span>Segregation Reports</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#settings" class="nav-link">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <h1>Dashboard</h1>
+                    <span class="status-indicator">
+                        <i class="fas fa-circle"></i>
+                        Live Data
+                    </span>
+                </div>
+                <div class="header-right">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="Search...">
+                    </div>
+                    <button class="refresh-btn" onclick="refreshData()">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                    <button class="settings-btn">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Main Dashboard Content -->
+            <div class="dashboard-content">
+                <!-- Key Metrics Cards -->
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-icon">
+                            <i class="fas fa-trash"></i>
+                        </div>
+                        <div class="metric-content">
+                            <h3>Total Waste Collected</h3>
+                            <div class="metric-value" id="totalWaste">0 L</div>
+                            <div class="metric-change positive" id="totalWasteChange">+0%</div>
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="metric-content">
+                            <h3>Bins Nearing Full</h3>
+                            <div class="metric-value" id="binsNearingFull">0</div>
+                            <div class="metric-change" id="binsNearingFullChange">0%</div>
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-icon">
+                            <i class="fas fa-dumpster"></i>
+                        </div>
+                        <div class="metric-content">
+                            <h3>Active Bins</h3>
+                            <div class="metric-value" id="activeBins">4</div>
+                            <div class="metric-change positive" id="activeBinsChange">+0%</div>
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-icon">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <div class="metric-content">
+                            <h3>Location Status</h3>
+                            <div class="metric-value" id="locationStatus">GPS Connected</div>
+                            <div class="metric-change" id="locationCoords">Loading...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts and Data Visualization -->
+                <div class="charts-grid">
+                    <!-- Fill Level Trend Chart -->
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3>Fill Level Trend</h3>
+                            <div class="chart-controls">
+                                <select id="timeRange">
+                                    <option value="today">Today</option>
+                                    <option value="week">This Week</option>
+                                    <option value="month">This Month</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="fillLevelChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Segregation Breakdown Chart -->
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3>Waste Segregation Breakdown</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="segregationChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Sub-bin Status Cards -->
+                    <div class="sub-bins-card">
+                        <div class="chart-header">
+                            <h3>Sub-bin Status</h3>
+                        </div>
+                        <div class="sub-bins-grid">
+                            <div class="sub-bin-item" data-bin="recyclable">
+                                <div class="bin-icon">
+                                    <i class="fas fa-recycle"></i>
+                                </div>
+                                <div class="bin-info">
+                                    <h4>Recyclable</h4>
+                                    <div class="bin-fill">
+                                        <div class="fill-bar">
+                                            <div class="fill-level" id="recyclableFill" style="width: 0%"></div>
+                                        </div>
+                                        <span class="fill-percentage" id="recyclablePercent">0%</span>
+                                    </div>
+                                    <div class="bin-volume" id="recyclableVolume">0/5 L</div>
+                                </div>
+                            </div>
+
+                            <div class="sub-bin-item" data-bin="compost">
+                                <div class="bin-icon">
+                                    <i class="fas fa-leaf"></i>
+                                </div>
+                                <div class="bin-info">
+                                    <h4>Compost</h4>
+                                    <div class="bin-fill">
+                                        <div class="fill-bar">
+                                            <div class="fill-level" id="compostFill" style="width: 0%"></div>
+                                        </div>
+                                        <span class="fill-percentage" id="compostPercent">0%</span>
+                                    </div>
+                                    <div class="bin-volume" id="compostVolume">0/5 L</div>
+                                </div>
+                            </div>
+
+                            <div class="sub-bin-item" data-bin="general">
+                                <div class="bin-icon">
+                                    <i class="fas fa-trash"></i>
+                                </div>
+                                <div class="bin-info">
+                                    <h4>General Waste</h4>
+                                    <div class="bin-fill">
+                                        <div class="fill-bar">
+                                            <div class="fill-level" id="generalFill" style="width: 0%"></div>
+                                        </div>
+                                        <span class="fill-percentage" id="generalPercent">0%</span>
+                                    </div>
+                                    <div class="bin-volume" id="generalVolume">0/5 L</div>
+                                </div>
+                            </div>
+
+                            <div class="sub-bin-item" data-bin="hazardous">
+                                <div class="bin-icon">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                </div>
+                                <div class="bin-info">
+                                    <h4>Hazardous</h4>
+                                    <div class="bin-fill">
+                                        <div class="fill-bar">
+                                            <div class="fill-level" id="hazardousFill" style="width: 0%"></div>
+                                        </div>
+                                        <span class="fill-percentage" id="hazardousPercent">0%</span>
+                                    </div>
+                                    <div class="bin-volume" id="hazardousVolume">0/5 L</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Alerts and Activities -->
+                <div class="alerts-section">
+                    <div class="alerts-card">
+                        <div class="chart-header">
+                            <h3>Alerts</h3>
+                            <span class="alert-count" id="alertCount">0</span>
+                        </div>
+                        <div class="alerts-list" id="alertsList">
+                            <!-- Alerts will be populated by JavaScript -->
+                        </div>
+                    </div>
+
+                    <div class="activities-card">
+                        <div class="chart-header">
+                            <h3>Recent Activities</h3>
+                        </div>
+                        <div class="activities-list" id="activitiesList">
+                            <!-- Activities will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Notification Toast -->
+    <div class="notification-toast" id="notificationToast">
+        <div class="toast-content">
+            <i class="fas fa-bell"></i>
+            <span id="toastMessage"></span>
+        </div>
+        <button class="toast-close" onclick="closeToast()">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

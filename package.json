@@ -1,0 +1,31 @@
+{
+  "name": "smart-dustbin-tracker",
+  "version": "1.0.0",
+  "description": "Real-time tracking website for smart dustbin with waste segregation",
+  "main": "backend-example.js",
+  "scripts": {
+    "start": "node backend-example.js",
+    "dev": "nodemon backend-example.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "smart-dustbin",
+    "waste-management",
+    "iot",
+    "real-time-tracking",
+    "waste-segregation"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "body-parser": "^1.20.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
